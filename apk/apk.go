@@ -9,7 +9,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/shogo82148/androidbinary"
+	"github.com/zinego/androidbinary"
 
 	_ "image/jpeg" // handle jpeg format
 	_ "image/png"  // handle png format
