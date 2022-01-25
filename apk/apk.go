@@ -195,3 +195,19 @@ func (k *Apk) readZipFile(name string) (data []byte, err error) {
 	}
 	return nil, fmt.Errorf("File %s not found", strconv.Quote(name))
 }
+
+func (k *Apk) DumpZipFile(name string, localPath string) error {
+	data, err := k.readZipFile(name)
+	if err != nil {
+		return err
+	}
+	file, err := os.Create(localPath)
+	if err != nil {
+		return err
+	}
+	_, err = file.Write(data)
+	if err != nil {
+		return err
+	}
+	return nil
+}

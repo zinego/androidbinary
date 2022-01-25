@@ -33,3 +33,12 @@ func TestParseAPKFile(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "com.example.helloworld.MainActivity", mainActivity)
 }
+
+func TestApk_DumpZipFile(t *testing.T) {
+	apk, err := OpenFile("testdata/helloworld.apk")
+	if !assert.NoError(t, err) {
+		return
+	}
+	defer apk.Close()
+	assert.Nil(t, apk.DumpZipFile("r/b/icon.png", "icon.png"))
+}
