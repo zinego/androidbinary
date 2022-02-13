@@ -246,7 +246,7 @@ func (f *TableFile) findPackage(id uint32) *TablePackage {
 	return f.tablePackages[id]
 }
 
-func (p *TablePackage) findEntry(typeIndex, entryIndex int, config *ResTableConfig) TableEntry {
+func (p *TablePackage) findBestEntry(typeIndex, entryIndex int, config *ResTableConfig) TableEntry {
 	var best *TableType
 	for _, t := range p.TableTypes {
 		switch {
@@ -268,13 +268,26 @@ func (p *TablePackage) findEntry(typeIndex, entryIndex int, config *ResTableConf
 	return best.Entries[entryIndex]
 }
 
-// GetResource returns a resource referenced by id.
-func (f *TableFile) GetResource(id ResID, config *ResTableConfig) (interface{}, error) {
+func (p *TablePackage) findAllEntry(typeIndex, entryIndex int) []TableEntry {
+	var entries []TableEntry
+	for _, t := range p.TableTypes {
+		if int(t.Header.ID) != typeIndex ||
+			entryIndex >= len(t.Entries) ||
+			t.Entries[entryIndex].Value == nil {
+			continue
+		}
+		entries = append(entries, t.Entries[entryIndex])
+	}
+	return entries
+}
+
+// GetBestResource returns a resource referenced by id.
+func (f *TableFile) GetBestResource(id ResID, config *ResTableConfig) (interface{}, error) {
 	p := f.findPackage(id.Package())
 	if p == nil {
 		return nil, fmt.Errorf("androidbinary: package 0x%02X not found", id.Package())
 	}
-	e := p.findEntry(id.Type(), id.Entry(), config)
+	e := p.findBestEntry(id.Type(), id.Entry(), config)
 	v := e.Value
 	if v == nil {
 		return nil, fmt.Errorf("androidbinary: entry 0x%04X not found", id.Entry())
@@ -292,6 +305,35 @@ func (f *TableFile) GetResource(id ResID, config *ResTableConfig) (interface{}, 
 		return v.Data != 0, nil
 	}
 	return v.Data, nil
+}
+
+// GetAllResources returns a resource referenced by id.
+func (f *TableFile) GetAllResources(id ResID) ([]interface{}, error) {
+	p := f.findPackage(id.Package())
+	if p == nil {
+		return nil, fmt.Errorf("androidbinary: package 0x%02X not found", id.Package())
+	}
+	tableEntries := p.findAllEntry(id.Type(), id.Entry())
+	var resources []interface{}
+	for _, entry := range tableEntries {
+		v := entry.Value
+		if v == nil {
+			return nil, fmt.Errorf("androidbinary: entry 0x%04X not found", id.Entry())
+		}
+		switch v.DataType {
+		case TypeNull:
+			return nil, nil
+		case TypeString:
+			resources = append(resources, f.GetString(ResStringPoolRef(v.Data)))
+		case TypeIntDec:
+			resources = append(resources, v.Data)
+		case TypeIntHex:
+			resources = append(resources, v.Data)
+		case TypeIntBoolean:
+			resources = append(resources, v.Data)
+		}
+	}
+	return resources, nil
 }
 
 // GetString returns a string referenced by ref.

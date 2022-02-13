@@ -58,7 +58,7 @@ func ExampleNewTableFile() {
 		panic(err)
 	}
 
-	val, err := tableFile.GetResource(0x7f040000, &androidbinary.ResTableConfig{})
+	val, err := tableFile.GetBestResource(0x7f040000, &androidbinary.ResTableConfig{})
 	if err != nil {
 		panic(err)
 	}

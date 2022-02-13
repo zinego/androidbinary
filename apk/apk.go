@@ -89,6 +89,14 @@ func (k *Apk) Icon(resConfig *androidbinary.ResTableConfig) (image.Image, error)
 	return m, err
 }
 
+func (k *Apk) GetAllIcons() ([]string, error) {
+	allIconPath, err := k.manifest.App.Icon.StringList()
+	if err != nil {
+		return nil, err
+	}
+	return allIconPath, nil
+}
+
 // Label returns the label of the APK.
 func (k *Apk) Label(resConfig *androidbinary.ResTableConfig) (s string, err error) {
 	s, err = k.manifest.App.Label.WithResTableConfig(resConfig).String()

@@ -125,7 +125,7 @@ func (v Bool) Bool() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	value, err := v.table.GetResource(id, v.config)
+	value, err := v.table.GetBestResource(id, v.config)
 	if err != nil {
 		return false, err
 	}
@@ -221,7 +221,7 @@ func (v Int32) Int32() (int32, error) {
 	if err != nil {
 		return 0, err
 	}
-	value, err := v.table.GetResource(id, v.config)
+	value, err := v.table.GetBestResource(id, v.config)
 	if err != nil {
 		return 0, err
 	}
@@ -306,7 +306,7 @@ func (v String) String() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	value, err := v.table.GetResource(id, v.config)
+	value, err := v.table.GetBestResource(id, v.config)
 	if err != nil {
 		return "", err
 	}
@@ -315,6 +315,31 @@ func (v String) String() (string, error) {
 		return "", fmt.Errorf("invalid type: %T", value)
 	}
 	return ret, nil
+}
+
+// StringList returns the string value list.
+// It resolves the reference if needed.
+func (v String) StringList() ([]string, error) {
+	if !IsResID(v.value) {
+		return []string{v.value}, nil
+	}
+	id, err := ParseResID(v.value)
+	if err != nil {
+		return nil, err
+	}
+	values, err := v.table.GetAllResources(id)
+	if err != nil {
+		return nil, err
+	}
+	var list []string
+	for _, value := range values {
+		ret, ok := value.(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid type: %T", value)
+		}
+		list = append(list, ret)
+	}
+	return list, nil
 }
 
 // MustString is same as String, but it panics if it fails to parse the value.

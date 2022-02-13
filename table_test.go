@@ -47,7 +47,7 @@ func TestFindPackage(t *testing.T) {
 
 func TestGetResourceNil(t *testing.T) {
 	tableFile := loadTestData()
-	val, _ := tableFile.GetResource(ResID(0x7f040000), nil)
+	val, _ := tableFile.GetBestResource(ResID(0x7f040000), nil)
 	if val != "花火距離計算" {
 		t.Errorf(`got %v want "花火距離計算"`, val)
 	}
@@ -55,7 +55,7 @@ func TestGetResourceNil(t *testing.T) {
 
 func TestGetResourceDefault(t *testing.T) {
 	tableFile := loadTestData()
-	val, _ := tableFile.GetResource(ResID(0x7f040000), &ResTableConfig{})
+	val, _ := tableFile.GetBestResource(ResID(0x7f040000), &ResTableConfig{})
 	if val != "FireworksMeasure" {
 		t.Errorf(`got %v want "FireworksMeasure"`, val)
 	}
@@ -66,7 +66,7 @@ func TestGetResourceJA(t *testing.T) {
 	config := &ResTableConfig{
 		Language: [2]uint8{'j', 'a'},
 	}
-	val, _ := tableFile.GetResource(ResID(0x7f040000), config)
+	val, _ := tableFile.GetBestResource(ResID(0x7f040000), config)
 	if val != "花火距離計算" {
 		t.Errorf(`got %v want "花火距離計算"`, val)
 	}
@@ -77,7 +77,7 @@ func TestGetResourceEN(t *testing.T) {
 	config := &ResTableConfig{
 		Language: [2]uint8{'e', 'n'},
 	}
-	val, _ := tableFile.GetResource(ResID(0x7f040000), config)
+	val, _ := tableFile.GetBestResource(ResID(0x7f040000), config)
 	if val != "FireworksMeasure" {
 		t.Errorf(`got %v want "FireworksMeasure"`, val)
 	}
