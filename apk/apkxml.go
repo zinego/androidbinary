@@ -61,10 +61,10 @@ type Application struct {
 	Enabled               androidbinary.Bool   `xml:"http://schemas.android.com/apk/res/android enabled,attr"`
 	HasCode               androidbinary.Bool   `xml:"http://schemas.android.com/apk/res/android hasCode,attr"`
 	HardwareAccelerated   androidbinary.Bool   `xml:"http://schemas.android.com/apk/res/android hardwareAccelerated,attr"`
-	Icon                  androidbinary.String `xml:"http://schemas.android.com/apk/res/android icon,attr"`
+	Icon                  androidbinary.String `xml:"icon,attr"`
 	KillAfterRestore      androidbinary.Bool   `xml:"http://schemas.android.com/apk/res/android killAfterRestore,attr"`
 	LargeHeap             androidbinary.Bool   `xml:"http://schemas.android.com/apk/res/android largeHeap,attr"`
-	Label                 androidbinary.String `xml:"http://schemas.android.com/apk/res/android label,attr"`
+	Label                 androidbinary.String `xml:"label,attr"`
 	Logo                  androidbinary.String `xml:"http://schemas.android.com/apk/res/android logo,attr"`
 	ManageSpaceActivity   androidbinary.String `xml:"http://schemas.android.com/apk/res/android manageSpaceActivity,attr"`
 	Name                  androidbinary.String `xml:"http://schemas.android.com/apk/res/android name,attr"`
@@ -101,8 +101,8 @@ type UsesPermission struct {
 // Manifest is a manifest of an APK.
 type Manifest struct {
 	Package         androidbinary.String `xml:"package,attr"`
-	VersionCode     androidbinary.Int32  `xml:"http://schemas.android.com/apk/res/android versionCode,attr"`
-	VersionName     androidbinary.String `xml:"http://schemas.android.com/apk/res/android versionName,attr"`
+	VersionCode     androidbinary.Int32  `xml:"versionCode,attr"`
+	VersionName     androidbinary.String `xml:"versionName,attr"`
 	App             Application          `xml:"application"`
 	Instrument      Instrumentation      `xml:"instrumentation"`
 	SDK             UsesSDK              `xml:"uses-sdk"`

@@ -155,6 +155,8 @@ func (f *XMLFile) readChunk(r io.ReaderAt, offset int64) (*ResChunkHeader, error
 		err = f.readStartElement(sr)
 	case ResXMLEndElementType:
 		err = f.readEndElement(sr)
+	case ResXMLResourceMapType:
+		err = f.readXMLResourceMap(sr)
 	}
 	if err != nil {
 		return nil, err
@@ -190,6 +192,22 @@ func (f *XMLFile) readStartNamespace(sr *io.SectionReader) error {
 	return nil
 }
 
+func (f *XMLFile) readXMLResourceMap(sr *io.SectionReader) error {
+	header := new(ResChunkHeader)
+	if err := binary.Read(sr, binary.LittleEndian, header); err != nil {
+		return err
+	}
+	if _, err := sr.Seek(int64(header.HeaderSize), io.SeekStart); err != nil {
+		return err
+	}
+	var resourceList = make([]uint32, header.Size/4)
+	if err := binary.Read(sr, binary.LittleEndian, resourceList); err != nil {
+		return err
+	}
+	f.resourceMap = resourceList
+	return nil
+}
+
 func (f *XMLFile) readEndNamespace(sr *io.SectionReader) error {
 	header := new(ResXMLTreeNode)
 	if err := binary.Read(sr, binary.LittleEndian, header); err != nil {
@@ -208,11 +226,21 @@ func (f *XMLFile) readEndNamespace(sr *io.SectionReader) error {
 }
 
 func (f *XMLFile) addNamespacePrefix(ns, name ResStringPoolRef) string {
-	if ns != NilResStringPoolRef {
-		prefix := f.GetString(f.namespaces.get(ns))
-		return fmt.Sprintf("%s:%s", prefix, f.GetString(name))
+	var attrName = f.GetString(name)
+	if attrName == "" && len(f.resourceMap) > int(name) && rValueMap[f.resourceMap[int32(name)]] != "" {
+		attrName = rValueMap[f.resourceMap[int32(name)]]
 	}
-	return f.GetString(name)
+	var namespace string
+	if ns != NilResStringPoolRef {
+		namespace = f.GetString(f.namespaces.get(ns))
+	}
+	if namespace != "" && attrName != "" {
+		return fmt.Sprintf("%s:%s", namespace, attrName)
+	}
+	if attrName != "" {
+		return attrName
+	}
+	return fmt.Sprintf("UNKNOWN_SYSTEM_ATTRIBUTE_%d", name)
 }
 
 func (f *XMLFile) readStartElement(sr *io.SectionReader) error {
